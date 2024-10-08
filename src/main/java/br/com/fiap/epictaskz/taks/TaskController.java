@@ -2,6 +2,9 @@ package br.com.fiap.epictaskz.taks;
 
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.security.authorization.method.AuthorizeReturnObject;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,9 +29,10 @@ public class TaskController {
     }
 
     @GetMapping
-    public String index(Model model){
+    public String index(Model model, @AuthenticationPrincipal OAuth2User user){
         var tasks = taskService.findAll();
         model.addAttribute("tasks", tasks);
+        model.addAttribute("user", user);
         return "index";
     }
 
