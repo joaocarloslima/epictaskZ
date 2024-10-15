@@ -1,5 +1,6 @@
 package br.com.fiap.epictaskz.taks;
 
+import br.com.fiap.epictaskz.user.User;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
@@ -8,10 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -29,10 +27,11 @@ public class TaskController {
     }
 
     @GetMapping
-    public String index(Model model, @AuthenticationPrincipal OAuth2User user){
-        var tasks = taskService.findAll();
-        model.addAttribute("tasks", tasks);
+    public String index(Model model, @AuthenticationPrincipal OAuth2User principal){
+        var user = (User) principal;
+        var tasks = taskService.findPending();
         model.addAttribute("user", user);
+        model.addAttribute("tasks", tasks);
         return "index";
     }
 
@@ -57,6 +56,30 @@ public class TaskController {
     public String delete(@PathVariable UUID id, RedirectAttributes redirect){
         taskService.delete(id);
         redirect.addFlashAttribute("message", "Tarefa apagada com sucesso");
+        return "redirect:/";
+    }
+
+    @PutMapping("/task/catch/{id}")
+    public String catchTask(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal){
+        taskService.catchTask(id, (User) principal);
+        return "redirect:/";
+    }
+
+    @PutMapping("/task/release/{id}")
+    public String releaseTask(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal){
+        taskService.releaseTask(id, (User) principal);
+        return "redirect:/";
+    }
+
+    @PutMapping("/task/inc/{id}")
+    public String incTask(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal){
+        taskService.incTask(id, (User) principal);
+        return "redirect:/";
+    }
+
+    @PutMapping("/task/dec/{id}")
+    public String decTask(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal){
+        taskService.decTask(id, (User) principal);
         return "redirect:/";
     }
 
